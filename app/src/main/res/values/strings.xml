@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Map Lines</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="remove_marker">removed from map</string>
+    <string name="lines_removed">Lines removed from map</string>
+    <string name="undo">UNDO</string>
+    <string name="more_markers">At least 2 places have to be visible</string>
+    <string name="clear_lines">Clear lines</string>
+    <string name="zoom_out">Zoom out</string>
+    <string name="clear_all">Clear all</string>
+</resources>

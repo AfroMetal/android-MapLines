@@ -1,0 +1,74 @@
+{
+  "places": [
+    {
+      "country" : "Poland",
+      "city" : "Warsaw",
+      "coordinates": [52.2298, 21.0118]
+    },
+    {
+      "country" : "Austria",
+      "city" : "Vienna",
+      "coordinates": [48.2092, 16.3728]
+    },
+    {
+      "country" : "Czech Republic",
+      "city" : "Prague",
+      "coordinates": [50.0878, 14.4205]
+    },
+    {
+      "country" : "Finland",
+      "city" : "Helsinki",
+      "coordinates": [60.1699, 24.9384]
+    },
+    {
+      "country" : "Germany",
+      "city" : "Berlin",
+      "coordinates": [52.5235, 13.4115]
+    },
+    {
+      "country" : "Spain",
+      "city" : "Madrid",
+      "coordinates": [40.4167, -3.7033]
+    },
+    {
+      "country" : "China",
+      "city" : "Beijing",
+      "coordinates": [39.9056, 116.3958]
+    },
+    {
+      "country" : "India",
+      "city" : "New Delhi",
+      "coordinates": [28.6353, 77.2250]
+    },
+    {
+      "country" : "United States",
+      "city" : "Washington",
+      "coordinates": [38.8921, -77.0241]
+    },
+    {
+      "country" : "Canada",
+      "city" : "Ottawa",
+      "coordinates": [45.4235, -75.6979]
+    },
+    {
+      "country" : "South Africa",
+      "city" : "Pretoria",
+      "coordinates": [-25.7463, 28.1876]
+    },
+    {
+      "country" : "New Zealand",
+      "city" : "Wellington",
+      "coordinates": [-41.2865, 174.7762]
+    },
+    {
+      "country" : "Japan",
+      "city" : "Tokyo",
+      "coordinates": [35.6785, 139.6823]
+    },
+    {
+      "country" : "Brazil",
+      "city" : "Brasilia",
+      "coordinates": [-15.7801, -47.9292]
+    }
+  ]
+}

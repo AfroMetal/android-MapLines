@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group
+        android:id="@+id/places_group"
+        android:checkableBehavior="single"
+        android:orderInCategory="0">
+    </group>
+
+    <item android:title="Actions"
+        android:orderInCategory="1">
+        <menu>
+            <item
+                android:id="@+id/nav_clear"
+                android:icon="@drawable/ic_menu_delete"
+                android:title="@string/clear_lines" />
+            <item
+                android:id="@+id/nav_clear_all"
+                android:icon="@drawable/ic_menu_delete_forever"
+                android:title="@string/clear_all" />
+            <item
+                android:id="@+id/nav_zoom_out"
+                android:icon="@drawable/ic_menu_zoom_out_map"
+                android:title="@string/zoom_out" />
+        </menu>
+    </item>
+
+</menu>
