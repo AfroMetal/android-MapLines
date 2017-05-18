@@ -122,49 +122,53 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
-        long id = item.getItemId();
+        int id = item.getItemId();
 
-        if (id == R.id.nav_zoom_out) {
-            mMap.animateCamera(CameraUpdateFactory.zoomBy(-1 * mMap.getMaxZoomLevel()));
-        } else if (id == R.id.nav_clear) {
-            deleteLine();
-        } else if (id == R.id.nav_clear_all) {
-            for (Marker m : markers) {
-                m.remove();
-            }
-            markers.clear();
-
-            if (polyline != null) {
-                polyline.remove();
-                polyline = null;
-                ((FloatingActionButton) findViewById(R.id.fab)).setImageResource(R.drawable.ic_menu_timeline);
-            }
-        } else {
-            Place place = places.getById(id);
-
-            List<Double> coordinates = place.getCoordinates();
-            LatLng latLng = new LatLng(coordinates.get(0), coordinates.get(1));
-
-            for (Marker m : markers) {
-                if (m.getTag() == place) {
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, Math.min(mMap.getMaxZoomLevel(), 10.0f)));
-                    return false;
+        switch (id) {
+            case R.id.nav_zoom_out:
+                mMap.animateCamera(CameraUpdateFactory.zoomBy(-1 * mMap.getMaxZoomLevel()));
+                break;
+            case R.id.nav_clear:
+                deleteLine();
+                break;
+            case R.id.nav_clear_all:
+                for (Marker m : markers) {
+                    m.remove();
                 }
-            }
+                markers.clear();
 
-            Marker marker = drawMarker(place);
+                if (polyline != null) {
+                    polyline.remove();
+                    polyline = null;
+                    ((FloatingActionButton) findViewById(R.id.fab)).setImageResource(R.drawable.ic_menu_timeline);
+                }
+                break;
+            default:
+                Place place = places.getById(id);
 
-            mMap.animateCamera(
-                    CameraUpdateFactory.newLatLngZoom(
-                            marker.getPosition(),
-                            Math.min(mMap.getMaxZoomLevel(), 10.0f))
-            );
+                List<Double> coordinates = place.getCoordinates();
+                LatLng latLng = new LatLng(coordinates.get(0), coordinates.get(1));
 
-            Snackbar.make(
-                    findViewById(R.id.coordinator_layout),
-                    place.getCity(),
-                    Snackbar.LENGTH_SHORT)
-                    .show();
+                for (Marker m : markers) {
+                    if (m.getTag() == place) {
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, Math.min(mMap.getMaxZoomLevel(), 10.0f)));
+                        return false;
+                    }
+                }
+
+                Marker marker = drawMarker(place);
+
+                mMap.animateCamera(
+                        CameraUpdateFactory.newLatLngZoom(
+                                marker.getPosition(),
+                                Math.min(mMap.getMaxZoomLevel(), 10.0f))
+                );
+
+                Snackbar.make(
+                        findViewById(R.id.coordinator_layout),
+                        place.getCity(),
+                        Snackbar.LENGTH_SHORT)
+                        .show();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -291,7 +295,9 @@ public class MainActivity extends AppCompatActivity
         Marker marker = mMap.addMarker(new MarkerOptions()
                 .position(latLng)
                 .draggable(true)
-                .title(place.getCity()));
+                .title(place.getCity())
+                .snippet(place.getCountry())
+        );
         marker.setTag(place);
         markers.add(marker);
 
