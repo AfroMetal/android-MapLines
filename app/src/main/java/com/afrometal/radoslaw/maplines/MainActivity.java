@@ -1,17 +1,19 @@
 package com.afrometal.radoslaw.maplines;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -38,8 +40,11 @@ public class MainActivity extends AppCompatActivity
 
     private GoogleMap mMap;
     private Places places;
-    private List<Marker> markers;
+    private ArrayList<Marker> markers;
     private Polyline polyline;
+
+    private ArrayList<Place> restoredMarkersPlaces = null;
+    private ArrayList<LatLng> restoredPolylinePoints = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +92,7 @@ public class MainActivity extends AppCompatActivity
                     if (points.size() <= 1) {
                         Toast.makeText(getApplicationContext(), getString(R.string.more_markers), Toast.LENGTH_SHORT).show();
                     } else {
-                        createLine(points);
+                        drawLine(points);
                     }
                 } else {
                     deleteLine();
@@ -99,9 +104,8 @@ public class MainActivity extends AppCompatActivity
     private Places getPlacesFromJson(int id) {
         Gson gson = new Gson();
         Reader reader = new InputStreamReader(getResources().openRawResource(id));
-        Places places = gson.fromJson(reader, Places.class);
 
-        return places;
+        return gson.fromJson(reader, Places.class);
     }
 
     @Override
@@ -116,7 +120,7 @@ public class MainActivity extends AppCompatActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         long id = item.getItemId();
 
@@ -138,8 +142,8 @@ public class MainActivity extends AppCompatActivity
         } else {
             Place place = places.getById(id);
 
-            double[] coordinates = place.getCoordinates();
-            LatLng latLng = new LatLng(coordinates[0], coordinates[1]);
+            List<Double> coordinates = place.getCoordinates();
+            LatLng latLng = new LatLng(coordinates.get(0), coordinates.get(1));
 
             for (Marker m : markers) {
                 if (m.getTag() == place) {
@@ -148,15 +152,13 @@ public class MainActivity extends AppCompatActivity
                 }
             }
 
-            Marker marker = mMap.addMarker(new MarkerOptions()
-                    .position(latLng)
-                    .draggable(true)
-                    .title(place.getCity()));
-            marker.setTag(place);
+            Marker marker = drawMarker(place);
 
-            markers.add(marker);
-
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, Math.min(mMap.getMaxZoomLevel(), 10.0f)));
+            mMap.animateCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                            marker.getPosition(),
+                            Math.min(mMap.getMaxZoomLevel(), 10.0f))
+            );
 
             Snackbar.make(
                     findViewById(R.id.coordinator_layout),
@@ -173,7 +175,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Draws line connecting visible markers.
      */
-    private void createLine(List<LatLng> points) {
+    private void drawLine(List<LatLng> points) {
         PolylineOptions line = new PolylineOptions()
                 .startCap(new RoundCap())
                 .endCap(new RoundCap())
@@ -203,7 +205,9 @@ public class MainActivity extends AppCompatActivity
      * Deletes line from map with option to undo.
      */
     private void deleteLine() {
-        if (polyline == null) { return; }
+        if (polyline == null) {
+            return;
+        }
 
         final Polyline backup = polyline;
         polyline.remove();
@@ -216,7 +220,7 @@ public class MainActivity extends AppCompatActivity
                 .setAction(getResources().getString(R.string.undo), new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        createLine(backup.getPoints());
+                        drawLine(backup.getPoints());
                     }
                 });
         snackbar.show();
@@ -226,11 +230,6 @@ public class MainActivity extends AppCompatActivity
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -248,25 +247,19 @@ public class MainActivity extends AppCompatActivity
                                 "%s %s",
                                 marker.getTitle(),
                                 getResources().getString(R.string.remove_marker)),
-                        Snackbar.LENGTH_LONG)
-                        .setAction(getResources().getString(R.string.undo), new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                double[] coordinates = place.getCoordinates();
-                                LatLng latLng = new LatLng(coordinates[0], coordinates[1]);
+                        Snackbar.LENGTH_LONG
+                ).setAction(getResources().getString(R.string.undo), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Marker marker = drawMarker(place);
 
-                                Marker marker = mMap.addMarker(new MarkerOptions()
-                                        .position(latLng)
-                                        .draggable(true)
-                                        .title(place.getCity()));
-
-                                marker.setTag(place);
-
-                                markers.add(marker);
-
-                                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, Math.min(mMap.getMaxZoomLevel(), 10.0f)));
-                            }
-                        });
+                        mMap.animateCamera(
+                                CameraUpdateFactory.newLatLngZoom(
+                                        marker.getPosition(),
+                                        Math.min(mMap.getMaxZoomLevel(), 10.0f))
+                        );
+                    }
+                });
                 snackbar.show();
             }
 
@@ -280,5 +273,51 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
+
+        if (restoredMarkersPlaces != null) {
+            for (Place p : restoredMarkersPlaces) {
+                drawMarker(p);
+            }
+        }
+        if (restoredPolylinePoints != null && restoredPolylinePoints.size() >= 2) {
+            drawLine(restoredPolylinePoints);
+        }
+    }
+
+    private Marker drawMarker(Place place) {
+        List<Double> coordinates = place.getCoordinates();
+        LatLng latLng = new LatLng(coordinates.get(0), coordinates.get(1));
+
+        Marker marker = mMap.addMarker(new MarkerOptions()
+                .position(latLng)
+                .draggable(true)
+                .title(place.getCity()));
+        marker.setTag(place);
+        markers.add(marker);
+
+        return marker;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        ArrayList<Place> markerPlaces = new ArrayList<>();
+        for (Marker m : markers) {
+            Place p = (Place) m.getTag();
+            Log.d("savedPlace", p.toString());
+            markerPlaces.add(p);
+        }
+        outState.putParcelableArrayList("markersPlaces", markerPlaces);
+        if (polyline != null) {
+            outState.putParcelableArrayList("polylinePoints", (ArrayList) polyline.getPoints());
+        }
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        // Restore data to add to map in onMapReady callback
+        restoredMarkersPlaces = savedInstanceState.getParcelableArrayList("markersPlaces");
+        restoredPolylinePoints = savedInstanceState.getParcelableArrayList("polylinePoints");
+        super.onRestoreInstanceState(savedInstanceState);
     }
 }
