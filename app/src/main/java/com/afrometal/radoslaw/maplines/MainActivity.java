@@ -188,6 +188,7 @@ public class MainActivity extends AppCompatActivity
                 .addAll(points);
 
         polyline = mMap.addPolyline(line);
+        polyline.setClickable(true);
 
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         for (LatLng p : points) {
@@ -275,6 +276,24 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onMarkerDragEnd(Marker marker) {
 
+            }
+        });
+
+        mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
+            @Override
+            public void onPolylineClick(Polyline polyline) {
+                LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                for (LatLng p : polyline.getPoints()) {
+                    builder.include(p);
+                }
+
+                LatLngBounds bounds = builder.build();
+
+                int width = findViewById(R.id.map).getWidth();
+                int height = findViewById(R.id.map).getHeight();
+                int padding = (int) (width * 0.1);
+
+                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding));
             }
         });
 
